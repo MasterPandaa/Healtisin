@@ -1,463 +1,210 @@
-# Healtisin AI
+# 🩺 Healtisin - AI-Powered Healthcare Consultation & Medical Intelligence Platform
 
-Healtisin AI is a comprehensive **AI-powered health consultation platform** built with Laravel 11. It provides users with intelligent health-related Q&A through an integrated chatbot, supports bilingual interactions (Indonesian and English), offers subscription-based premium access via Midtrans payment gateway, and includes a full-featured admin dashboard for content and system management.
+[![Laravel Version](https://img.shields.io/badge/Laravel-11.x-FF2D20?style=flat&logo=laravel&logoColor=white)](#)
+[![PHP Version](https://img.shields.io/badge/PHP-8.2%2B-777BB4?style=flat&logo=php&logoColor=white)](#)
+[![Payment Gateway](https://img.shields.io/badge/Payment-Midtrans%20Snap%202.6-002B49?style=flat)](#)
+[![OAuth](https://img.shields.io/badge/Auth-Google%20Socialite-4285F4?style=flat&logo=google&logoColor=white)](#)
+[![Database](https://img.shields.io/badge/Database-SQLite%20(Default)%20%7C%20MySQL-blue.svg)](#)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
----
+**Healtisin** adalah platform layanan kesehatan digital (*digital health platform*) terintegrasi yang menghadirkan **asisten konsultasi medis berbasis AI**, sistem telekonsultasi, artikel kesehatan terkurasi, dan pembayaran paket konsultasi otomatis menggunakan **Midtrans Payment Gateway**.
 
-## Table of Contents
-
-- [Overview](#overview)
-- [Features](#features)
-- [Technology Stack](#technology-stack)
-- [System Architecture](#system-architecture)
-- [Installation](#installation)
-- [Configuration](#configuration)
-- [Database Schema](#database-schema)
-- [API Integrations](#api-integrations)
-- [Authentication](#authentication)
-- [Admin Panel](#admin-panel)
-- [Payment System](#payment-system)
-- [AI Chatbot System](#ai-chatbot-system)
-- [Translation System](#translation-system)
-- [Logging System](#logging-system)
-- [Directory Structure](#directory-structure)
-- [Development Commands](#development-commands)
-- [Security](#security)
-- [License](#license)
+Dibangun dengan arsitektur **Laravel 11.x**, platform ini menggabungkan antarmuka pengguna yang responsif dengan **Admin Dashboard** canggih untuk mengelola *dataset training* model AI kesehatan (*custom knowledge base*), log audit sistem, serta manajemen transaksi pembayaran.
 
 ---
 
-## Overview
+## 🌟 Mengapa Menggunakan Healtisin?
 
-Healtisin AI serves as a digital health assistant where users can:
-
-- **Consult an AI chatbot** trained with Indonesian medical datasets for accurate, localized health information.
-- **Subscribe to premium plans** to unlock extended features and consultation limits.
-- **Manage their profile**, including personal details, profile photos, and password settings.
-- **Read health news and articles** published by administrators.
-- **Access the platform in Indonesian or English** with real-time translation capabilities.
-- **Administrators** can manage users, transactions, content, system logs, and AI training parameters through a secure admin panel.
+- 🤖 **24/7 AI Medical Consultation**: Asisten cerdas yang dilatih dengan basis pengetahuan medis terverifikasi untuk memberikan penanganan awal, triase gejala, dan rekomendasi kesehatan umum.
+- 💳 **Otomatisasi Pembayaran Midtrans Snap**: Mendukung berbagai metode pembayaran instan Indonesia: **QRIS**, **GoPay**, **ShopeePay**, **Virtual Account (BCA, BNI, Mandiri, BRI)**, dan **Kartu Kredit/Debit**.
+- 🧠 **AI Knowledge Base Training Engine**: Panel admin khusus untuk melatih, menyempurnakan, dan menguji respons AI berdasarkan dataset tanya-jawab medis terbaru.
+- 🔐 **Multi-Provider OAuth & Keamanan**: Masuk cepat dan aman menggunakan akun **Google Socialite** atau kredensial email terverifikasi.
+- 📊 **Audit Trail & Diagnostic Logs**: Pemantauan kesehatan database dan riwayat interaksi pengguna secara real-time via Database Log & File Log Controller.
 
 ---
 
-## Features
+## 🚀 Fitur Utama
 
-### User-Facing Features
-- **AI Health Chatbot** – Context-aware conversations powered by Gemini and DeepSeek APIs, enriched with Indonesian medical datasets.
-- **User Authentication** – Registration with OTP verification, login, password reset via OTP, and Google OAuth (Socialite).
-- **Profile Management** – Update name, phone number, profile photo, and change password.
-- **Subscription & Payments** – Select packages, pay via Midtrans (Snap/Virtual Account/e-wallet), and upload payment proof.
-- **Chat History** – Save, view, and delete past AI consultations.
-- **Health News** – Browse and read health-related articles.
-- **FAQ** – Frequently asked questions with click tracking.
-- **Contact Form** – Submit inquiries or feedback to administrators.
-- **Bilingual Support** – Full Indonesian and English translation for UI and AI responses.
-- **Dark Mode** – Toggle between light and dark themes.
-
-### Admin Panel Features
-- **Dashboard** – Overview of users, transactions, messages, and system activity.
-- **User Management** – CRUD operations for end-users and admin accounts.
-- **Transaction Monitoring** – View and manage payment records.
-- **Content Management** – Create, edit, and publish news articles.
-- **Site Settings** – Manage site information, metadata, logo, and footer content.
-- **System Logs** – Dual logging (database and file) with filtering, segment categorization, and audit trails.
-- **AI Training Interface** – Prompt engineering, fine-tuning dataset uploads, and management of keywords/patterns for chatbot behavior.
-- **Pricing Configuration** – Dynamic subscription package management.
-- **Message Inbox** – Read and manage contact form submissions.
-
----
-
-## Technology Stack
-
-| Layer | Technology |
-|-------|------------|
-| **Backend Framework** | PHP 8.2+, Laravel 11 |
-| **Frontend Build** | Vite 6.x |
-| **CSS Framework** | Tailwind CSS 3.4 with Typography plugin |
-| **JavaScript** | Vanilla JS (modular), Perfect Scrollbar |
-| **Database** | MySQL (primary) / SQLite (fallback) |
-| **Cache & Session** | Database driver |
-| **Queue** | Database driver |
-| **AI APIs** | Google Gemini API, DeepSeek API |
-| **Payment Gateway** | Midtrans |
-| **Social Authentication** | Laravel Socialite (Google OAuth) |
-| **Translation** | `google-translate-api-browser` (client-side), custom Translation Service |
-| **Email** | SMTP (Gmail) |
-
----
-
-## System Architecture
-
-```
-┌─────────────────┐
-│   Client Browser│
-└────────┬────────┘
-         │
-    ┌────▼────┐
-    │   Nginx / Apache  (Laragon / Production)
-    └────┬────┘
-         │
-    ┌────▼────┐
-    │  Laravel 11 App   (PHP 8.2+)
-    │  ├── Blade Views
-    │  ├── Controllers
-    │  ├── Models
-    │  └── Services
-    └────┬────┘
-         │
-    ┌────┴────┐
-    │         │
-┌───▼───┐ ┌───▼────┐ ┌──────────┐ ┌──────────┐
-│ MySQL │ │ File   │ │ Gemini   │ │ Midtrans │
-│ DB    │ │ Logs   │ │ DeepSeek │ │ Payment  │
-└───────┘ └────────┘ └──────────┘ └──────────┘
+```text
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           HEALTISIN CORE MODULES                            │
+├──────────────────────┬──────────────────────┬───────────────────────────────┤
+│ 💬 AI Health Chatbot │ 💳 Midtrans Gateway  │ 🧠 AI Training Engine         │
+│ Konsultasi interaktif│ Checkout otomatis,   │ Tambah & latih dataset        │
+│ triase gejala 24/7.  │ QRIS, VA, E-Wallet.  │ pengetahuan medis (/admin).   │
+├──────────────────────┼──────────────────────┼───────────────────────────────┤
+│ 📰 Health News Portal│ 🌐 Multilingual Hub  │ 🛡️ Admin & Log Monitor        │
+│ Artikel medis & FAQ  │ Bahasa Indonesia &   │ File logging, audit database, │
+│ terkurasi dokter.    │ Bahasa Inggris.      │ & manajemen langganan.        │
+└──────────────────────┴──────────────────────┴───────────────────────────────┘
 ```
 
----
-
-## Installation
-
-### Prerequisites
-- PHP >= 8.2 with extensions: `mbstring`, `openssl`, `pdo`, `pdo_mysql`, `fileinfo`
-- Composer 2.x
-- Node.js >= 18 + npm
-- MySQL 8.0+ (or SQLite for local development)
-- A web server (Apache/Nginx) or Laravel's built-in server
-
-### Step-by-Step Setup
-
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url> healtisin
-   cd healtisin
-   ```
-
-2. **Install PHP dependencies**
-   ```bash
-   composer install
-   ```
-
-3. **Install Node.js dependencies**
-   ```bash
-   npm install
-   ```
-
-4. **Environment setup**
-   ```bash
-   cp .env.example .env
-   php artisan key:generate
-   ```
-
-5. **Configure your `.env` file**
-   Set database credentials, API keys, mail settings, and payment gateway credentials (see [Configuration](#configuration)).
-
-6. **Run migrations and seeders**
-   ```bash
-   php artisan migrate
-   php artisan db:seed
-   ```
-
-7. **Build frontend assets**
-   ```bash
-   npm run build
-   # OR for development with hot reload:
-   npm run dev
-   ```
-
-8. **Start the application**
-   ```bash
-   php artisan serve
-   ```
-   Visit `http://localhost:8000`.
+1. **AI Medical Chatbot Assistant (`/chat`)**:
+   - Konsultasi interaktif real-time dengan asisten AI yang mampu menganalisis deskripsi keluhan pengguna secara kontekstual.
+2. **AI Knowledge Base & Training Dashboard (`/admin/ai-training`)**:
+   - Manajemen *prompt engineering*, penambahan dataset medis, dan pengujian respons bot sebelum dipublikasikan.
+3. **Midtrans Payment Gateway Integration (`/pricing` & `/payment`)**:
+   - Pembelian paket konsultasi kesehatan dengan notifikasi webhook otomatis (*instant payment verification*).
+4. **Portal Informasi & Berita Kesehatan (`/news` & `/faq`)**:
+   - Publikasi artikel kesehatan berbasis kategori medis dan FAQ interaktif.
+5. **Autentikasi Terintegrasi**:
+   - Single Sign-On (SSO) via Google Socialite, reset kata sandi, dan proteksi sesi pengguna.
 
 ---
 
-## Configuration
+## 🛠️ Tata Cara Instalasi & Menjalankan
 
-### Required Environment Variables
-
-| Variable | Description |
-|----------|-------------|
-| `APP_NAME` | Application name (default: "Healtisin AI") |
-| `APP_URL` | Base URL of the application |
-| `DB_CONNECTION` | `mysql` or `sqlite` |
-| `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` | Database connection details |
-| `MAIL_MAILER`, `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD` | SMTP configuration for OTP and notifications |
-| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REDIRECT_URI` | Google OAuth credentials |
-| `GEMINI_API_KEY`, `GEMINI_MODEL` | Google Gemini API key and model name |
-| `DEEPSEEK_API_KEY`, `DEEPSEEK_MODEL`, `DEEPSEEK_BASE_URL` | DeepSeek API credentials |
-| `MIDTRANS_CLIENT_KEY`, `MIDTRANS_SERVER_KEY`, `MIDTRANS_IS_PRODUCTION` | Midtrans payment gateway credentials |
-
-### Localization
-Default locale is Indonesian (`id`). English (`en`) is available as a fallback. Configure via:
-```env
-APP_LOCALE=id
-APP_FALLBACK_LOCALE=en
-```
+### 1. Prasyarat Sistem
+- **PHP** >= 8.2 (dengan ekstensi `openssl`, `pdo_sqlite`/`pdo_mysql`, `mbstring`, `curl`, `gd`)
+- **Composer** >= 2.x
+- **Node.js** >= 18.x & **NPM**
+- **Git**
 
 ---
 
-## Database Schema
-
-### Core Tables
-
-| Table | Purpose |
-|-------|---------|
-| `users` | Registered end-users with subscription status |
-| `admins` | Administrator accounts for the backend panel |
-| `admins` | Administrator accounts |
-| `chat_histories` | Stored AI consultation conversations |
-| `payments` | Payment records and proof uploads |
-| `pricing_configs` | Subscription package definitions |
-| `news` | Health articles and blog posts |
-| `messages` | Contact form submissions |
-| `system_logs` | Structured application logs (database) |
-| `file_logs` | File-based log entries |
-| `social_accounts` | Linked Google OAuth accounts |
-| `otps` / `password_otps` | OTP codes for registration and password reset |
-| `meta_data`, `site_settings`, `footers`, `information` | Site-wide content and branding configuration |
-| `datasets` | AI training datasets for fine-tuning |
-| `jobs`, `cache`, `sessions` | Laravel queue, cache, and session storage |
-
----
-
-## API Integrations
-
-### Google Gemini API
-- **Purpose**: Primary AI response generation for health consultations.
-- **Configuration**: `GEMINI_API_KEY`, `GEMINI_MODEL` (default: `gemini-2.0-flash`)
-- **Usage**: `ChatController` constructs a system prompt with medical datasets and user context before sending requests.
-
-### DeepSeek API
-- **Purpose**: Fallback or secondary AI provider for chatbot responses.
-- **Configuration**: `DEEPSEEK_API_KEY`, `DEEPSEEK_MODEL`, `DEEPSEEK_BASE_URL`
-
-### Midtrans Payment Gateway
-- **Purpose**: Process subscription payments.
-- **Features**: Snap payments, virtual accounts, e-wallets, payment notifications via webhook.
-- **Configuration**: `MIDTRANS_CLIENT_KEY`, `MIDTRANS_SERVER_KEY`, `MIDTRANS_IS_PRODUCTION`
-- **Endpoints**: Payment notification handler at `/payment/notification`
-
-### Google OAuth (Laravel Socialite)
-- **Purpose**: One-click login and registration via Google accounts.
-- **Routes**: `/auth/google` (redirect) and `/auth/callback` (callback)
-
----
-
-## Authentication
-
-Healtisin supports three authentication flows:
-
-### 1. Email & Password with OTP
-- Users register with email, username, and password.
-- An OTP is sent to the email for verification before the account is activated.
-- Login requires email/username and password.
-
-### 2. Google OAuth
-- Users can sign in or register using their Google account via Socialite.
-- Linked accounts are stored in the `social_accounts` table.
-
-### 3. Password Reset via OTP
-- Users request a password reset by email.
-- An OTP is sent for verification.
-- After OTP validation, users can set a new password.
-
-### Session & Security
-- Sessions are stored in the database (`SESSION_DRIVER=database`).
-- CSRF protection enabled on all forms.
-- Admin routes are protected by `auth:admin` middleware.
-
----
-
-## Admin Panel
-
-The admin panel is accessible at `/admin/dashboard` (requires admin authentication).
-
-### Admin Modules
-
-| Module | Route Prefix | Description |
-|--------|-------------|-------------|
-| Dashboard | `/admin/dashboard` | Analytics overview |
-| Users | `/admin/users` | Manage registered users |
-| Admins | `/admin/admins` | Manage admin accounts |
-| Transactions | `/admin/transactions` | Payment history |
-| Payments | `/admin/payments` | Payment proof verification |
-| Pricing | `/admin/pricing` | Configure subscription packages |
-| News | `/admin/news` | CRUD for health articles |
-| Messages | `/admin/messages` | Contact form inbox |
-| Logs (DB) | `/admin/log-database` | Structured system logs |
-| Logs (File) | `/admin/log-file` | Raw file logs |
-| AI Training | `/admin/prompt-engineering` | Adjust AI prompts |
-| Fine-Tuning | `/admin/fine-tuning` | Upload training datasets |
-| Keywords | `/admin/keywords-patterns` | Manage chatbot behavior rules |
-| Settings | `/admin/settings` | Profile, password, photo |
-
----
-
-## Payment System
-
-### Subscription Flow
-1. User navigates to `/pricing/pro` to view packages.
-2. Selects a package at `/pricing/select-package`.
-3. Fills payment details at `/pricing/payment-details`.
-4. System processes payment via Midtrans at `/pricing/process-payment`.
-5. User sees confirmation at `/pricing/payment-confirmation/{id}`.
-6. Admin verifies payment proof if manual upload is used.
-
-### Supported Payment Methods
-- Midtrans Snap (credit card, virtual account, e-wallet)
-- Manual bank transfer with proof upload
-
----
-
-## AI Chatbot System
-
-### Architecture
-The chatbot is managed by `ChatController` and supported by:
-- `MedicalDatasetService` – Provides structured Indonesian medical datasets (tropical diseases, symptoms, risk factors) to enrich AI context.
-- `ResponseValidationService` – Validates AI responses for accuracy, safety, and relevance.
-- `App\Constants\HealthKeywords`, `Greetings`, `QuestionPatterns` – Categorized constants for intent detection and routing.
-
-### Flow
-1. User sends a message via `/chat/send`.
-2. System detects intent (greeting, health question, follow-up).
-3. Context is enriched with medical datasets and user history.
-4. Request is sent to Gemini API (with DeepSeek fallback).
-5. Response is validated and streamed/sent back to the user.
-6. Conversation is saved to `chat_histories` table.
-
-### Features
-- Chat history persistence (create, read, delete)
-- Regenerate last AI response
-- Edit previous messages
-- Real-time streaming UI
-
----
-
-## Translation System
-
-Healtisin provides bilingual support through a custom translation layer:
-
-- **Backend**: `TranslationService` and `TranslationController` handle API translations between Indonesian and English.
-- **Frontend**: `translate.js` provides client-side translation with preserved words and custom correction dictionaries.
-- **Routes**:
-  - `POST /api/translate/id-to-en`
-  - `POST /api/translate/en-to-id`
-- **Settings**: `/translation/settings` allows configuring preserved words and manual corrections.
-
----
-
-## Logging System
-
-Healtisin implements a comprehensive dual logging strategy via `LogHelper`:
-
-### Database Logging (`system_logs` table)
-- **Types**: `error`, `warning`, `info`, `audit_success`, `audit_failure`
-- **Segments**: `transaction`, `user`, `api`, `view`, `system`
-- **Fields**: message, type, segment, user_id, ip_address, user_agent, JSON data
-
-### File Logging
-- Laravel's native file logging channel for stack traces and raw errors.
-
-### Helper Methods
-```php
-LogHelper::error($segment, $message, $data);
-LogHelper::warning($segment, $message, $data);
-LogHelper::info($segment, $message, $data);
-LogHelper::auditSuccess($segment, $message, $data);
-LogHelper::auditFailure($segment, $message, $data);
-```
-
-Admin panel provides log viewers with filtering by date, type, and segment.
-
----
-
-## Directory Structure
-
-```
-healtisin/
-├── app/
-│   ├── Constants/           # HealthKeywords, Greetings, QuestionPatterns
-│   ├── Exceptions/          # AIServiceException, Handler
-│   ├── Helpers/             # LogHelper, TextHelper
-│   ├── Http/
-│   │   ├── Controllers/     # Web controllers (Auth, Admin, Chat, Payment, etc.)
-│   │   └── ...
-│   ├── Models/              # Eloquent models (User, Admin, ChatHistory, Payment, etc.)
-│   ├── Services/            # MedicalDatasetService, TranslationService, OtpService, ResponseValidationService
-│   └── ...
-├── bootstrap/
-├── config/                  # Laravel configuration
-├── database/
-│   ├── factories/
-│   ├── migrations/          # All table schemas
-│   └── seeders/             # AdminSeeder, DatabaseSeeder, InformationSeeder
-├── docs/                    # Additional documentation
-├── public/                  # Entry point, images, fonts
-├── resources/
-│   ├── css/                 # Tailwind entry (app.css)
-│   ├── js/                  # app.js, bootstrap.js, dark-mode.js, translate.js
-│   ├── lang/                # Language definitions
-│   └── views/               # Blade templates (auth, admin, components, pages)
-├── routes/
-│   └── web.php              # All web routes
-├── storage/                 # Logs, cache, sessions, uploads
-├── tests/                   # Feature and Unit tests
-├── .env.example             # Environment template
-├── composer.json            # PHP dependencies
-├── package.json             # Node dependencies
-├── tailwind.config.js       # Tailwind + darkMode class strategy
-└── vite.config.js           # Vite build configuration
-```
-
----
-
-## Development Commands
+### 2. Langkah Instalasi
 
 ```bash
-# Start Laravel dev server + Vite + Queue + Logs (concurrently)
-composer run dev
+# 1. Clone repositori
+git clone https://github.com/MasterPandaa/Healtisin.git
+cd Healtisin
 
-# Or individually:
-php artisan serve          # Laravel server
-npm run dev                # Vite dev server with HMR
-php artisan queue:listen   # Process queued jobs
-php artisan pail           # Real-time log tailing
+# 2. Install dependensi PHP (Composer)
+composer install
 
-# Build for production
+# 3. Install dependensi frontend (NPM)
+npm install
+
+# 4. Buat file konfigurasi lingkungan (.env)
+cp .env.example .env
+
+# 5. Generate application encryption key
+php artisan key:generate
+
+# 6. Jalankan migrasi dan seeder database
+php artisan migrate --seed
+
+# 7. Hubungkan direktori storage publik
+php artisan storage:link
+
+# 8. Build aset frontend (Tailwind / Vite)
 npm run build
-
-# Database
-php artisan migrate:fresh --seed   # Reset DB with seeders
-
-# Code formatting
-php artisan pint           # Laravel Pint (PHP CS Fixer)
-
-# Testing
-php artisan test           # Run PHPUnit tests
 ```
 
 ---
 
-## Security
+### 3. Konfigurasi Environment (`.env`)
 
-- **CSRF Protection**: Enabled on all state-changing routes.
-- **Password Hashing**: Bcrypt with 12 rounds.
-- **OTP Expiry**: Time-limited OTP codes for registration and password reset.
-- **Admin Middleware**: `auth:admin` guards all `/admin/*` routes.
-- **Signed URLs**: Email verification uses signed URLs.
-- **Input Validation**: All controllers validate incoming requests.
-- **SQL Injection Prevention**: Eloquent ORM and query parameter binding used throughout.
-- **XSS Mitigation**: Blade's automatic escaping (`{{ }}`) applied in views.
+Sesuaikan kunci API penting pada file `.env`:
+
+```env
+APP_NAME="Healtisin"
+APP_URL=http://localhost:8000
+
+# Database Configuration (Default: SQLite)
+DB_CONNECTION=sqlite
+
+# Midtrans Payment Gateway (Sandbox / Production)
+MIDTRANS_SERVER_KEY=SB-Mid-server-xxxxxxxxxxxx
+MIDTRANS_CLIENT_KEY=SB-Mid-client-xxxxxxxxxxxx
+MIDTRANS_IS_PRODUCTION=false
+MIDTRANS_IS_SANITIZED=true
+MIDTRANS_IS_3DS=true
+
+# Google OAuth Socialite
+GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+GOOGLE_REDIRECT_URI=http://localhost:8000/auth/google/callback
+```
 
 ---
 
-## License
+### 4. Menjalankan Aplikasi
 
-This project is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Jalankan server aplikasi lokal:
+
+```bash
+# Jalankan server Laravel
+php artisan serve
+
+# Pada terminal terpisah (untuk hot-reloading asset):
+npm run dev
+```
+
+Akses portal melalui peramban: **`http://127.0.0.1:8000`**
 
 ---
 
-## Support
+## 📖 Panduan Penggunaan & Alur Layanan
 
-For issues, questions, or contributions, please contact the development team or open an issue in the repository.
+```text
+┌─────────────────────────┐      ┌─────────────────────────┐      ┌─────────────────────────┐
+│ 1. User Register/Login  │ ───> │ 2. Pilih Paket          │ ───> │ 3. Bayar via Midtrans   │
+│    (Email / Google SSO) │      │    Konsultasi Medis     │      │    (QRIS / VA / E-Money)│
+└─────────────────────────┘      └─────────────────────────┘      └─────────────────────────┘
+                                                                               │
+                                                                               ▼
+┌─────────────────────────┐      ┌─────────────────────────┐      ┌─────────────────────────┐
+│ 6. Admin Latih AI Baru  │ <─── │ 5. Catatan Riwayat Chat │ <─── │ 4. Mulai Chatbot AI     │
+│    di Menu AI Training  │      │    Tersimpan di Akun    │      │    Konsultasi Medis     │
+└─────────────────────────┘      └─────────────────────────┘      └─────────────────────────┘
+```
+
+1. **Masuk ke Akun**: Daftar akun baru atau klik tombol **Login with Google**.
+2. **Pilih Paket Layanan**: Kunjungi menu *Pricing* untuk memilih kuota konsultasi yang dibutuhkan.
+3. **Selesaikan Transaksi**: Pilih metode pembayaran pada popup Midtrans Snap (misal: scan QRIS).
+4. **Mulai Konsultasi**: Buka halaman *Chat* untuk berinteraksi langsung dengan AI Health Assistant.
+5. **Panel Admin**: Akses rute `/admin` untuk memonitor riwayat transaksi dan melatih *dataset* AI.
+
+---
+
+## 📦 Struktur Direktori Proyek
+
+```text
+Healtisin/
+├── app/
+│   ├── Helpers/
+│   │   └── TextHelper.php          # String sanitation & text formatting helper
+│   ├── Http/
+│   │   ├── Controllers/
+│   │   │   ├── Admin/              # Controller Panel Administrator
+│   │   │   │   ├── AITrainingController.php     # Manajemen dataset AI medis
+│   │   │   │   ├── DatabaseLogController.php    # Log aktivitas database
+│   │   │   │   ├── FileLogController.php        # Log berkas server
+│   │   │   │   ├── PricingConfigController.php  # Konfigurasi tarif paket
+│   │   │   │   └── NewsController.php           # CMS artikel kesehatan
+│   │   │   ├── Auth/               # Login, Register, Socialite Google
+│   │   │   ├── ChatController.php  # Logika percakapan AI & message stream
+│   │   │   └── PaymentController.php # Integrasi webhook & checkout Midtrans
+│   │   └── Middleware/             # Otentikasi & proteksi akses admin
+│   └── Models/                     # Eloquent Models (User, Chat, Payment, dll.)
+├── database/
+│   ├── migrations/                 # Skema tabel transaksi, user, & chat
+│   └── seeders/                    # Data awal pricing, admin, & kategori
+├── resources/
+│   ├── views/                      # Template Blade UI (Public & Admin)
+│   ├── css/                        # Sumber stylesheet
+│   └── js/                         # Script frontend
+├── routes/
+│   ├── web.php                     # Rute portal publik & admin
+│   └── auth.php                    # Rute otentikasi
+├── composer.json                   # Dependensi PHP & Laravel 11
+├── package.json                    # Dependensi frontend & asset build
+└── README.md                       # Dokumentasi komprehensif sistem
+```
+
+---
+
+## 🔒 Privasi & Keamanan Data Medis
+
+- **Enkripsi Data Pengguna**: Seluruh data sensitif dan kredensial diamankan dengan enkripsi standar industri Laravel.
+- **Midtrans Webhook Verification**: Verifikasi tanda tangan digital (*signature key hash*) pada setiap notifikasi pembayaran masuk guna mencegah *spoofing*.
+- **CSRF & Rate Limiting**: Perlindungan form token dan pembatasan frekuensi pengiriman pesan (*chat rate limiter*) untuk mencegah penyalahgunaan bot.
+
+---
+
+## 📄 Lisensi & Kontribusi
+
+Proyek ini didistribusikan di bawah lisensi [MIT](LICENSE). Terbuka untuk pengembangan riset dan kolaborasi teknologi kesehatan.
+
+Kontribusi, pelaporan kendala (*bug report*), atau penambahan modul medis dapat diajukan melalui [GitHub Issues](https://github.com/MasterPandaa/Healtisin/issues) atau *Pull Request*.
